@@ -57,11 +57,15 @@ class XboardInstall extends Command
             $enableSqlite = getenv('ENABLE_SQLITE', false);
             $enableRedis = getenv('ENABLE_REDIS', false);
             $adminAccount = getenv('ADMIN_ACCOUNT', false);
+            $adminPassword = getenv('ADMIN_PASSWORD', false);
+            $adminPath = getenv('ADMIN_PATH', false);
+            
             $this->info("__    __ ____                      _  ");
             $this->info("\ \  / /| __ )  ___   __ _ _ __ __| | ");
             $this->info(" \ \/ / | __ \ / _ \ / _` | '__/ _` | ");
             $this->info(" / /\ \ | |_) | (_) | (_| | | | (_| | ");
             $this->info("/_/  \_\|____/ \___/ \__,_|_|  \__,_| ");
+            
             if (
                 (File::exists(base_path() . '/.env') && $this->getEnvValue('INSTALLED'))
                 || (getenv('INSTALLED', false) && $isDocker)
@@ -73,10 +77,12 @@ class XboardInstall extends Command
                 note('rm .env && touch .env');
                 return;
             }
+            
             if (is_dir(base_path() . '/.env')) {
-                $this->error('😔：安装失败，Docker环境下安装请保留空的 .env 文件');
+                $this->error('😔😔：安装失败，Docker环境下安装请保留空的 .env 文件');
                 return;
             }
+            
             // 选择数据库类型
             $dbType = $enableSqlite ? 'sqlite' : select(
                 label: '请选择数据库类型',
@@ -99,7 +105,9 @@ class XboardInstall extends Command
             if (is_null($envConfig)) {
                 return; // 用户选择退出安装
             }
+            
             $envConfig['APP_KEY'] = 'base64:' . base64_encode(Encrypter::generateKey('AES-256-CBC'));
+            
             $isReidsValid = false;
             while (!$isReidsValid) {
                 // 判断是否为Docker环境
@@ -137,7 +145,7 @@ class XboardInstall extends Command
             if (!copy(base_path() . '/.env.example', base_path() . '/.env')) {
                 abort(500, '复制环境文件失败，请检查目录权限');
             }
-            ;
+            
             $email = !empty($adminAccount) ? $adminAccount : text(
                 label: '请输入管理员账号',
                 default: 'admin@demo.com',
@@ -147,7 +155,37 @@ class XboardInstall extends Command
                     default => null,
                 }
             );
-            $password = Helper::guid(false);
+            
+            // 使用环境变量配置密码，如果没有则提示输入
+            $password = !empty($adminPassword) ? $adminPassword : text(
+                label: '请输入管理员密码(留空将自动生成)',
+                placeholder: '留空自动生成',
+                validate: fn(string $password): ?string => match (true) {
+                    !empty($password) && strlen($password) < 8 => '密码长度最小为8位字符',
+                    default => null,
+                }
+            );
+            
+            if (empty($password)) {
+                $password = Helper::guid(false);
+            }
+            
+            // 使用环境变量配置管理路径，如果没有则提示输入
+            $adminPath = !empty($adminPath) ? $adminPath : text(
+                label: '请输入管理后台路径(留空将自动生成)',
+                placeholder: '留空自动生成',
+                validate: fn(string $path): ?string => match (true) {
+                    !empty($path) && !preg_match('/^[a-zA-Z0-9_-]+$/', $path) => '路径只能包含字母、数字、下划线和连字符',
+                    default => null,
+                }
+            );
+            
+            if (empty($adminPath)) {
+                $adminPath = hash('crc32b', config('app.key'));
+            }
+            
+            // 将管理路径保存到环境变量
+            $envConfig['ADMIN_PATH'] = $adminPath;
             $this->saveToEnv($envConfig);
 
             $this->call('config:cache');
@@ -165,12 +203,11 @@ class XboardInstall extends Command
             PluginManager::installDefaultPlugins();
             $this->info('默认插件安装完成');
 
-            $this->info('🎉：一切就绪');
+            $this->info('🎉🎉：一切就绪');
             $this->info("管理员邮箱：{$email}");
             $this->info("管理员密码：{$password}");
 
-            $defaultSecurePath = hash('crc32b', config('app.key'));
-            $this->info("访问 http(s)://你的站点/{$defaultSecurePath} 进入管理面板，你可以在用户中心修改你的密码。");
+            $this->info("访问 http(s)://你的站点/{$adminPath} 进入管理面板，你可以在用户中心修改你的密码。");
             $envConfig['INSTALLED'] = true;
             $this->saveToEnv($envConfig);
         } catch (\Exception $e) {
