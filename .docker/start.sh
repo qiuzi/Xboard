@@ -1,3 +1,3 @@
-#! /bin/d h
+#! /bin/sh
 
 cp /etc/secrets/* ./ exec /usr/bin/supervisord -n -c /etc/supervisor/conf.d/supervisord.conf
