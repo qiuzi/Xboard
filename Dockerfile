@@ -38,4 +38,4 @@ RUN composer install --no-cache --no-dev \
     && chown redis:redis /data
 
 EXPOSE 80
-CMD ["staup.sh"] 
+CMD ["/www/staup.sh"] 
