@@ -12,10 +12,10 @@ RUN CFLAGS="-O0" install-php-extensions pcntl && \
     (getent group redis || addgroup -S redis) && \
     (getent passwd redis || adduser -S -G redis -H -h /data redis)
 
-# COPY .docker /
-ADD .docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-ADD .docker/start.sh /usr/bin/start.sh
-RUN chmod +x /usr/bin/start.sh
+COPY .docker /
+# ADD .docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+# ADD .docker/start.sh /usr/bin/start.sh
+RUN chmod +x /start.sh
 WORKDIR /www
 
 # Add build arguments
@@ -37,4 +37,4 @@ RUN composer install --no-cache --no-dev \
     && chown redis:redis /data
 
 EXPOSE 80
-CMD ["/usr/bin/start.sh"] 
+CMD ["/start.sh"] 
