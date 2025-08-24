@@ -1,4 +1,4 @@
 #! /bin/sh
 
-cp -a /etc/secrets/* ./ 
-exec /usr/bin/supervisord -n -c /etc/supervisor/conf.d/supervisord.conf
+cp -a /etc/secrets/.env ./.env
+exec /usr/bin/supervisord -n -c /supervisor/supervisord.conf
