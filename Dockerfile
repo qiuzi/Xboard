@@ -12,9 +12,8 @@ RUN CFLAGS="-O0" install-php-extensions pcntl && \
     (getent group redis || addgroup -S redis) && \
     (getent passwd redis || adduser -S -G redis -H -h /data redis)
 
-WORKDIR /www
-
 COPY .docker /
+WORKDIR /www
 
 # Add build arguments
 ARG CACHEBUST
