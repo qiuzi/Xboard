@@ -28,8 +28,8 @@ RUN echo "Attempting to clone branch: ${BRANCH_NAME} from ${REPO_URL} with CACHE
     git clone --depth 1 --branch ${BRANCH_NAME} ${REPO_URL} .
 
 COPY /.docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY /.docker/start.sh /staup.sh
-RUN chmod +x /staup.sh
+COPY /.docker/start.sh staup.sh
+RUN chmod +x staup.sh
 RUN composer install --no-cache --no-dev \
     && php artisan storage:link \
     && chown -R www:www /www \
@@ -38,4 +38,4 @@ RUN composer install --no-cache --no-dev \
     && chown redis:redis /data
 
 EXPOSE 80
-CMD ["/staup.sh"] 
+CMD ["staup.sh"] 
