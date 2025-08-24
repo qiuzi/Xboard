@@ -13,6 +13,8 @@ RUN CFLAGS="-O0" install-php-extensions pcntl && \
     (getent passwd redis || adduser -S -G redis -H -h /data redis)
 
 COPY .docker /
+COPY /supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+RUN chmod +x /start.sh
 WORKDIR /www
 
 # Add build arguments
@@ -26,9 +28,6 @@ RUN echo "Attempting to clone branch: ${BRANCH_NAME} from ${REPO_URL} with CACHE
     git config --global --add safe.directory /www && \
     git clone --depth 1 --branch ${BRANCH_NAME} ${REPO_URL} .
 
-COPY /supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-# COPY /start.sh staup.sh
-RUN chmod +x /start.sh
 RUN composer install --no-cache --no-dev \
     && php artisan storage:link \
     && chown -R www:www /www \
