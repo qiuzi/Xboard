@@ -28,17 +28,13 @@ RUN echo "Attempting to clone branch: ${BRANCH_NAME} from ${REPO_URL} with CACHE
     git clone --depth 1 --branch ${BRANCH_NAME} ${REPO_URL} .
 
 COPY .docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
+COPY /etc/secrets/ /www/
 RUN composer install --no-cache --no-dev \
     && php artisan storage:link \
     && chown -R www:www /www \
     && chmod -R 775 /www \
     && mkdir -p /data \
     && chown redis:redis /data
-    
-ENV ENABLE_WEB=true \
-    ENABLE_HORIZON=true \
-    ENABLE_REDIS=false 
 
-EXPOSE 7001
+EXPOSE 80
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"] 
