@@ -14,8 +14,8 @@ RUN CFLAGS="-O0" install-php-extensions pcntl && \
 
 COPY .docker /
 COPY .docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY .docker/start.sh /start.sh
-RUN chmod +x /start.sh
+COPY .docker/start.sh /usr/bin/start.sh
+RUN chmod +x /usr/bin/start.sh
 WORKDIR /www
 
 # Add build arguments
@@ -37,4 +37,4 @@ RUN composer install --no-cache --no-dev \
     && chown redis:redis /data
 
 EXPOSE 80
-CMD ["/start.sh"] 
+CMD ["/usr/bin/start.sh"] 
