@@ -35,5 +35,5 @@ RUN composer install --no-cache --no-dev \
     && mkdir -p /data \
     && chown redis:redis /data
 
-EXPOSE 80
+EXPOSE 7001
 CMD ["/start.sh"] 
