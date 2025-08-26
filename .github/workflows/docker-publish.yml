@@ -33,7 +33,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository }}:latest
+          tags: v0.1:test
           build-args: |
             REPO_URL=https://github.com/cedar2025/Xboard.git
             BRANCH_NAME=master
