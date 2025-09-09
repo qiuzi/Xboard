@@ -12,7 +12,7 @@ RUN CFLAGS="-O0" install-php-extensions pcntl && \
     (getent group redis || addgroup -S redis) && \
     (getent passwd redis || adduser -S -G redis -H -h /data redis)
 
-RUN sed -i '\$a\\n# Memory Fragmentation Control\nactivedefrag yes\nactive-defrag-ignore-bytes 100000000\nactive-defrag-threshold-lower 50\nactive-defrag-threshold-upper 100\nactive-defrag-cycle-min 5\nactive-defrag-cycle-max 25' /etc/redis.conf
+RUN echo -e "\n# Memory Fragmentation Control\nactivedefrag yes\nactive-defrag-ignore-bytes 100000000\nactive-defrag-threshold-lower 50\nactive-defrag-threshold-upper 100\nactive-defrag-cycle-min 5\nactive-defrag-cycle-max 25" >> /etc/redis.conf
 
 COPY .docker /
 
